@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>appMySql</title>
+</head>
+<body>
+    <div class=" container">
+        <h1>lista de productos</h1>
+        <div class="controls">
+            <button id="reloadBtn">Recargar Datos</button>
+            <div id="statusMessage"></div>
+        </div>
+        <div class="table-container">
+            <table id="productsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Fecha Creacion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5">Cargando datos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    
+    /*
+        Este script espera a que el contenido del DOM esté completamente cargado antes de ejecutarse.
+        Selecciona los siguientes elementos del documento HTML:
+        - El elemento <tbody> de la tabla con el ID 'productsTable', utilizado para mostrar las filas de productos.
+        - El botón con el ID 'reloadBtn', destinado a recargar o actualizar los datos.
+        - El elemento con el nombre de etiqueta 'statusMessage', usado para mostrar mensajes de estado o retroalimentación al usuario.
+    */
+    document.addEventListener('DOMContentLoaded', () => {
+        const tableBody = document.querySelector('#productsTable tbody');
+        const reloadBtn = document.querySelector('#reloadBtn');
+        const statusMessage = document.querySelector('statusMessage');
+
+        //funcion para formatear la fecha
+        const formatDate = (dateString) => {
+            const options = 
+            {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        };
+        //funcion para formatear el precio
+        const formatPrice = (price) => {
+            if(price === null || price === undefined)
+                return '0.00';
+            if (typeof price === 'number') 
+                return price.toFixed(2);
+            const numericValue = parseFloat(price);
+            return isNaN(numericValue) ? '0.00' : numericValue.toFixed(2);
+        };
+        //funcion para error
+        const showError = (message) =>{
+            statusMessage.innerHTML = 
+            `<div class="error-message">${message}</div>`;
+            tableBody.innerHTML = 
+            `<tr><td colspan="5">Error al cargar los datos</td></tr>`;
+        };
+        const loadData = async () =>{
+            try{
+                statusMessage.innerHTML = 
+                `<div class="loading-message">Cargando datos...</div>`;
+                const response = await fetch('/api/products');
+                if (!response.ok) 
+                    throw new Error(`Error HTTP:${response.status}`);
+                const result = await response.json();
+                if(!result.succes)
+                    throw new Error(result.message || 'Error en los datos recibidos');
+                if (!result.data || result.data.length === 0) {
+                    tableBody.innerHTML = 
+                    `<tr><td colspan="5">No hay productos disponibles</td></tr>`;
+                    statusMessage.innerHTML = 
+                    `<div class="info-message">No se encontraron productos</div>`;
+                    return;
+                }
+           
+        
+                tableBody.innerHTML = result.data.map(product => 
+                    `<tr>
+                        <td>${product.id}</td>
+                        <td>${product.name || 'N/A'}</td>
+                        <td>${formatPrice(product.price)}</td>
+                        <td>${product.stock ?? 'N/A'}</td>
+                        <td>${ product.created_at? formatDate(product.created_at):'N/A'}</td>
+                    </tr>`).join(''); 
+
+                statusMessage.innerHTML=`div class="success-message">datos cargados correctamente.
+                (${new Date().toLocaleTimeString()})</div>`;
+
+            }catch (error) {
+                console.error('Error al cargar los datos:', error);
+                showError(`Error: ${error.message}`);
+            }
+        };
+    reloadBtn.addEventListener('click', loadData);
+        // Cargar los datos al inicio
+        loadData();
+    });
+</script>
