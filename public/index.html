@@ -97,11 +97,11 @@
         
                 tableBody.innerHTML = result.data.map(product => 
                     `<tr>
-                        <td>${product.id}</td>
-                        <td>${product.name || 'N/A'}</td>
-                        <td>${formatPrice(product.price)}</td>
-                        <td>${product.stock ?? 'N/A'}</td>
-                        <td>${ product.created_at? formatDate(product.created_at):'N/A'}</td>
+                        <td>${product.prodId}</td>
+                        <td>${product.prodName || 'N/A'}</td>
+                        <td>${formatPrice(product.prodPrice)}</td>
+                        <td>${product.prodStock ?? 'N/A'}</td>
+                        <td>${ product.prodDate? formatDate(product.prodDate):'N/A'}</td>
                     </tr>`).join(''); 
 
                 statusMessage.innerHTML=`div class="success-message">datos cargados correctamente.
@@ -111,9 +111,9 @@
                 console.error('Error al cargar los datos:', error);
                 showError(`Error: ${error.message}`);
             }
-        };
+        }
     reloadBtn.addEventListener('click', loadData);
         // Cargar los datos al inicio
         loadData();
-    });
+});
 </script>

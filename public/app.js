@@ -2,13 +2,13 @@ import express from 'express';
 import { createPool } from 'mysql2/promise';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import patch from 'path';
+import path from 'path';
 import { fileURLToPath } from 'url'; 
-import { error } from 'console';
+
 
 //configuracion de las rutas ES Modules
-const__filename = fileURLToPath(import.meta.url);
-const __dirname = patch.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 //configuracion de entorno
 dotenv.config();
@@ -33,7 +33,7 @@ app.use(cors({
     methods: 'GET'    
 }));
 app.use(express.json());
-app.use(express.static(patch.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('api/products',async(requestAnimationFrame,res) =>{
     let connection;
@@ -58,7 +58,7 @@ app.get('api/products',async(requestAnimationFrame,res) =>{
 
 //ruta principal
 app.get ('/',(req,res)=>{
-    res.sendFile(patch.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname,'public', 'index.html'));
 });
 
 //manejo de errores global 
