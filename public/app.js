@@ -33,3 +33,24 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.static(patch.join(__dirname, 'public')));
+
+app.get('api/products',async(requestAnimationFrame,res) =>{
+    let connection;
+    try{
+        connection = await pool.getConnection();
+        const [rows] = await connection.query('SELECT * FROM products');
+        if(!rows || rows.length === 0) 
+            return res.status(404).json({success:false, message: 'No products found' });
+        res.json({ success: true, data: rows});
+    }catch (error) {
+        console.error('Error en /api/products:', error);
+        res.status(500).json({
+            success: false,
+            message: 'error al obtener productos',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+        });
+    }finally {
+        if (connection)
+            connection.release();
+    }
+});
