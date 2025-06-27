@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import patch from 'path';
 import { fileURLToPath } from 'url'; 
+import { error } from 'console';
 
 //configuracion de las rutas ES Modules
 const__filename = fileURLToPath(import.meta.url);
@@ -53,4 +54,32 @@ app.get('api/products',async(requestAnimationFrame,res) =>{
         if (connection)
             connection.release();
     }
+});
+
+//ruta principal
+app.get ('/',(req,res)=>{
+    res.sendFile(patch.join(__dirname, 'public', 'index.html'));
+});
+
+//manejo de errores global 
+app.use((err, req, res, next) => {
+    console.error('Error global:', err);
+    res.status(500).json({
+        success: false,
+        error: 'Internal Server Error'
+    });
+});
+
+//inicio del servidor
+const server = app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+
+//manejo de cierre del servidor
+process.on('SIGTERM',()=>{
+    server.close(() =>{
+        pool.end();
+        console.log('Servidor cerrado');
+        process.exit(0);
+    });
 });
